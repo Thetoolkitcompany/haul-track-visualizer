@@ -3,7 +3,16 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { Truck, Package, DollarSign, Weight, Users, MapPin } from 'lucide-react';
-import { Shipment, DashboardMetrics } from '@/types/shipment';
+import type { Shipment } from '@shared/schema';
+
+interface DashboardMetrics {
+  totalTrips: number;
+  totalRevenue: number;
+  averageWeight: number;
+  totalWeight: number;
+  uniqueTrucks: number;
+  uniqueConsignors: number;
+}
 
 interface DashboardProps {
   shipments: Shipment[];
@@ -22,8 +31,8 @@ const Dashboard: React.FC<DashboardProps> = ({ shipments }) => {
       };
     }
 
-    const totalRevenue = shipments.reduce((sum, s) => sum + s.freight + s.deliveryCharge, 0);
-    const totalWeight = shipments.reduce((sum, s) => sum + s.weight, 0);
+    const totalRevenue = shipments.reduce((sum, s) => sum + Number(s.freight) + Number(s.deliveryCharge), 0);
+    const totalWeight = shipments.reduce((sum, s) => sum + Number(s.weight), 0);
     const uniqueTrucks = new Set(shipments.map(s => s.truckNumber)).size;
     const uniqueConsignors = new Set(shipments.map(s => s.consignor)).size;
 
@@ -46,7 +55,7 @@ const Dashboard: React.FC<DashboardProps> = ({ shipments }) => {
       acc[truck] = { truck, trips: 0, revenue: 0 };
     }
     acc[truck].trips += 1;
-    acc[truck].revenue += shipment.freight + shipment.deliveryCharge;
+    acc[truck].revenue += Number(shipment.freight) + Number(shipment.deliveryCharge);
     return acc;
   }, {} as Record<string, { truck: string; trips: number; revenue: number }>);
 

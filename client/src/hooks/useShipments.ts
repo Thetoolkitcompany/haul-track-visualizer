@@ -1,53 +1,65 @@
 
-import { useState, useEffect } from 'react';
-import { Shipment } from '@/types/shipment';
-
-const STORAGE_KEY = 'logistics-crm-shipments';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { queryClient, apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
+import type { Shipment, InsertShipment } from '@shared/schema';
 
 export const useShipments = () => {
-  const [shipments, setShipments] = useState<Shipment[]>([]);
+  const { toast } = useToast();
 
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        setShipments(JSON.parse(stored));
-      } catch (error) {
-        console.error('Failed to parse stored shipments:', error);
-      }
-    }
-  }, []);
+  const { data: shipments = [], isLoading, error } = useQuery({
+    queryKey: ['/api/shipments'],
+    queryFn: () => apiRequest('/api/shipments'),
+  });
 
-  const saveShipments = (newShipments: Shipment[]) => {
-    setShipments(newShipments);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newShipments));
-  };
+  const addShipmentMutation = useMutation({
+    mutationFn: (shipmentData: any) => {
+      const insertData: InsertShipment = {
+        date: shipmentData.date || new Date(),
+        consignmentNumber: shipmentData.consignmentNumber || '',
+        truckNumber: shipmentData.truckNumber || '',
+        consignee: shipmentData.consignee || '',
+        consigneeLocation: shipmentData.consigneeLocation || '',
+        weight: shipmentData.weight || '0',
+        rate: shipmentData.rate || '0',
+        deliveryCharge: shipmentData.deliveryCharge || '0',
+        freight: shipmentData.freight || '0',
+        consignorLocation: shipmentData.consignorLocation || '',
+        numberOfArticles: parseInt(shipmentData.numberOfArticles) || 0,
+        natureOfGoods: shipmentData.natureOfGoods || '',
+        consignor: shipmentData.consignor || '',
+        notes: shipmentData.notes || '',
+      };
+      return apiRequest('/api/shipments', {
+        method: 'POST',
+        body: JSON.stringify(insertData),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/shipments'] });
+      toast({
+        title: 'Shipment added',
+        description: 'The shipment has been successfully added.',
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Error',
+        description: 'Failed to add shipment. Please try again.',
+        variant: 'destructive',
+      });
+    },
+  });
 
-  const addShipment = (shipment: Omit<Shipment, 'id'>) => {
-    const newShipment: Shipment = {
-      ...shipment,
-      id: Date.now().toString(),
-    };
-    const updatedShipments = [...shipments, newShipment];
-    saveShipments(updatedShipments);
-  };
-
-  const updateShipment = (id: string, updates: Partial<Shipment>) => {
-    const updatedShipments = shipments.map(shipment =>
-      shipment.id === id ? { ...shipment, ...updates } : shipment
-    );
-    saveShipments(updatedShipments);
-  };
-
-  const deleteShipment = (id: string) => {
-    const updatedShipments = shipments.filter(shipment => shipment.id !== id);
-    saveShipments(updatedShipments);
+  const addShipment = (shipmentData: any) => {
+    addShipmentMutation.mutate(shipmentData);
   };
 
   return {
     shipments,
     addShipment,
-    updateShipment,
-    deleteShipment,
+    isLoading,
+    error,
+    isAddingShipment: addShipmentMutation.isPending,
   };
 };

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Eye, Truck, Package, Calendar, MapPin, Download } from 'lucide-react';
-import { Shipment } from '@/types/shipment';
+import type { Shipment } from '@shared/schema';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
 

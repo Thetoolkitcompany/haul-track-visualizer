@@ -14,13 +14,17 @@ A comprehensive logistics management system with React frontend and Express back
 - ✓ Migration from Lovable to Replit completed (2024)
 - ✓ Dependencies installed and configured
 - ✓ Application running successfully on port 5000
+- ✓ PostgreSQL database integrated with Drizzle ORM (June 25, 2025)
+- ✓ Added comprehensive shipment data table with search, export, and CRUD operations
 
 ## Current Features
 - Dashboard with analytics
 - Shipment form for data entry
 - Shipment list view
+- Comprehensive data table with search, view details, delete, and Excel export
 - Resource management
 - Tabbed navigation interface
+- Full database integration with PostgreSQL
 
 ## User Preferences
 - Prefers clean, functional interfaces
@@ -28,5 +32,6 @@ A comprehensive logistics management system with React frontend and Express back
 
 ## Development Notes
 - Server binds to 0.0.0.0:5000 for Replit compatibility
-- Uses memory storage currently (ready for PostgreSQL integration)
+- Uses PostgreSQL database with Drizzle ORM
 - Hot reloading enabled in development mode
+- API endpoints: GET/POST/PUT/DELETE /api/shipments

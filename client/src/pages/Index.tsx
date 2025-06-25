@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, Plus, List, Settings } from 'lucide-react';
+import { BarChart3, Plus, List, Settings, Database } from 'lucide-react';
 import Dashboard from '@/components/Dashboard';
 import ShipmentForm from '@/components/ShipmentForm';
 import ShipmentList from '@/components/ShipmentList';
+import ShipmentDataTable from '@/components/ShipmentDataTable';
 import ResourceManagement from '@/components/ResourceManagement';
 import { useShipments } from '@/hooks/useShipments';
 
@@ -27,7 +28,7 @@ const Index = () => {
 
         {/* Main Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-fit lg:grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5 lg:w-fit lg:grid-cols-5">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Dashboard
@@ -39,6 +40,10 @@ const Index = () => {
             <TabsTrigger value="shipments" className="flex items-center gap-2">
               <List className="h-4 w-4" />
               All Shipments
+            </TabsTrigger>
+            <TabsTrigger value="data-table" className="flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              Data Table
             </TabsTrigger>
             <TabsTrigger value="resources" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
@@ -59,6 +64,11 @@ const Index = () => {
           {/* Shipments List Tab */}
           <TabsContent value="shipments" className="space-y-6">
             <ShipmentList shipments={shipments} />
+          </TabsContent>
+
+          {/* Data Table Tab */}
+          <TabsContent value="data-table" className="space-y-6">
+            <ShipmentDataTable />
           </TabsContent>
 
           {/* Resources Management Tab */}
