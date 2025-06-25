@@ -52,7 +52,7 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
     deliveryCharge: '',
     freight: 0,
     consignorLocation: '',
-    numberOfArticles: '',
+    numberOfArticles: 'Loose',
     natureOfGoods: '',
     consignor: '',
     notes: '',
@@ -66,7 +66,8 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
       const deliveryCharge = parseFloat(formData.deliveryCharge) || 0;
       
       if (weight > 0 && rate > 0) {
-        const calculatedFreight = (weight * rate) - deliveryCharge;
+        // Formula: (Weight/1000) * Rate + Delivery Charge
+        const calculatedFreight = (weight / 1000) * rate + deliveryCharge;
         setFormData(prev => ({
           ...prev,
           freight: Math.max(0, calculatedFreight) // Ensure freight is not negative
@@ -102,7 +103,7 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
       deliveryCharge: parseFloat(formData.deliveryCharge) || 0,
       freight: formData.freight,
       consignorLocation: formData.consignorLocation,
-      numberOfArticles: parseInt(formData.numberOfArticles) || 0,
+      numberOfArticles: formData.numberOfArticles,
       natureOfGoods: formData.natureOfGoods,
       consignor: formData.consignor,
       notes: formData.notes,
@@ -123,7 +124,7 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
       deliveryCharge: '',
       freight: 0,
       consignorLocation: '',
-      numberOfArticles: '',
+      numberOfArticles: 'Loose',
       natureOfGoods: '',
       consignor: '',
       notes: '',
@@ -144,7 +145,7 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Date */}
           <div className="space-y-2">
             <Label htmlFor="date">Date *</Label>

@@ -20,7 +20,7 @@ export const shipments = pgTable("shipments", {
   deliveryCharge: numeric("delivery_charge", { precision: 10, scale: 2 }).notNull(),
   freight: numeric("freight", { precision: 10, scale: 2 }).notNull(),
   consignorLocation: text("consignor_location").notNull(),
-  numberOfArticles: integer("number_of_articles").notNull(),
+  numberOfArticles: text("number_of_articles").notNull(),
   natureOfGoods: text("nature_of_goods").notNull(),
   consignor: text("consignor").notNull(),
   notes: text("notes"),
@@ -35,6 +35,7 @@ export const insertShipmentSchema = createInsertSchema(shipments).omit({
   id: true,
 }).extend({
   date: z.string().or(z.date()).transform((val) => new Date(val)),
+  numberOfArticles: z.string().or(z.number()).transform((val) => val.toString()),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
