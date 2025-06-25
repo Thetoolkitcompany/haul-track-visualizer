@@ -257,7 +257,7 @@ const ShipmentList: React.FC<ShipmentListProps> = ({ shipments }) => {
                 <div>
                   <div className="text-xs text-muted-foreground">Revenue</div>
                   <div className="font-semibold text-green-600">
-                    ${(shipment.freight + shipment.deliveryCharge).toFixed(2)}
+                    ${(Number(shipment.freight) + Number(shipment.deliveryCharge)).toFixed(2)}
                   </div>
                 </div>
               </div>
@@ -346,15 +346,15 @@ const ShipmentList: React.FC<ShipmentListProps> = ({ shipments }) => {
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Rate</label>
-                <p className="font-semibold">${selectedShipment.rate.toFixed(2)}</p>
+                <p className="font-semibold">${Number(selectedShipment.rate).toFixed(2)}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Delivery Charge</label>
-                <p className="font-semibold">${selectedShipment.deliveryCharge.toFixed(2)}</p>
+                <p className="font-semibold">${Number(selectedShipment.deliveryCharge).toFixed(2)}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Freight</label>
-                <p className="font-semibold">${selectedShipment.freight.toFixed(2)}</p>
+                <p className="font-semibold">${Number(selectedShipment.freight).toFixed(2)}</p>
               </div>
             </div>
             
