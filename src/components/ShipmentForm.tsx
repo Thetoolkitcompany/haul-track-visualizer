@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,7 +21,7 @@ interface ShipmentFormData {
   weight: string;
   rate: string;
   deliveryCharge: string;
-  freight: string;
+  freight: number;
   consignorLocation: string;
   numberOfArticles: string;
   natureOfGoods: string;
@@ -44,13 +44,23 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
     weight: '',
     rate: '',
     deliveryCharge: '',
-    freight: '',
+    freight: 0,
     consignorLocation: '',
     numberOfArticles: '',
     natureOfGoods: '',
     consignor: '',
     notes: '',
   });
+
+  // Calculate freight automatically when weight, rate, or delivery charge changes
+  useEffect(() => {
+    const weight = parseFloat(formData.weight) || 0;
+    const rate = parseFloat(formData.rate) || 0;
+    const deliveryCharge = parseFloat(formData.deliveryCharge) || 0;
+    
+    const calculatedFreight = (weight / 1000) * rate + deliveryCharge;
+    setFormData(prev => ({ ...prev, freight: calculatedFreight }));
+  }, [formData.weight, formData.rate, formData.deliveryCharge]);
 
   const handleInputChange = (field: keyof ShipmentFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -77,7 +87,7 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
       weight: parseFloat(formData.weight) || 0,
       rate: parseFloat(formData.rate) || 0,
       deliveryCharge: parseFloat(formData.deliveryCharge) || 0,
-      freight: parseFloat(formData.freight) || 0,
+      freight: formData.freight,
       consignorLocation: formData.consignorLocation,
       numberOfArticles: parseInt(formData.numberOfArticles) || 0,
       natureOfGoods: formData.natureOfGoods,
@@ -97,7 +107,7 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
       weight: '',
       rate: '',
       deliveryCharge: '',
-      freight: '',
+      freight: 0,
       consignorLocation: '',
       numberOfArticles: '',
       natureOfGoods: '',
@@ -240,17 +250,18 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
             />
           </div>
 
-          {/* Freight */}
+          {/* Freight - Auto calculated */}
           <div className="space-y-2">
-            <Label htmlFor="freight">Freight ($)</Label>
+            <Label htmlFor="freight">Freight ($) - Auto Calculated</Label>
             <Input
               id="freight"
               type="number"
               step="0.01"
-              value={formData.freight}
-              onChange={(e) => handleInputChange('freight', e.target.value)}
-              placeholder="0.00"
+              value={formData.freight.toFixed(2)}
+              readOnly
+              className="bg-gray-50 cursor-not-allowed"
             />
+            <p className="text-xs text-gray-500">Formula: (Weight/1000) × Rate + Delivery Charge</p>
           </div>
 
           {/* Consignor Location */}
