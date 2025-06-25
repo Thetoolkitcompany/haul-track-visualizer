@@ -11,6 +11,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { useResources } from '@/hooks/useResources';
+import SearchableSelect from '@/components/SearchableSelect';
 
 interface ShipmentFormData {
   date: Date | undefined;
@@ -35,6 +37,7 @@ interface ShipmentFormProps {
 
 const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
   const { toast } = useToast();
+  const { resources } = useResources();
   const [formData, setFormData] = useState<ShipmentFormData>({
     date: new Date(),
     consignmentNumber: '',
@@ -170,45 +173,37 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
             />
           </div>
 
-          {/* Truck Number */}
+          {/* Truck Number - Searchable */}
           <div className="space-y-2">
             <Label htmlFor="truckNumber">Truck Number *</Label>
-            <div className="relative">
-              <Truck className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                id="truckNumber"
-                value={formData.truckNumber}
-                onChange={(e) => handleInputChange('truckNumber', e.target.value)}
-                placeholder="TRK001"
-                className="pl-10"
-              />
-            </div>
-          </div>
-
-          {/* Consignee */}
-          <div className="space-y-2">
-            <Label htmlFor="consignee">Consignee</Label>
-            <Input
-              id="consignee"
-              value={formData.consignee}
-              onChange={(e) => handleInputChange('consignee', e.target.value)}
-              placeholder="Recipient Name"
+            <SearchableSelect
+              options={resources.truckNumbers}
+              value={formData.truckNumber}
+              onValueChange={(value) => handleInputChange('truckNumber', value)}
+              placeholder="Select or enter truck number"
             />
           </div>
 
-          {/* Consignee Location */}
+          {/* Consignee - Searchable */}
+          <div className="space-y-2">
+            <Label htmlFor="consignee">Consignee</Label>
+            <SearchableSelect
+              options={resources.consignees}
+              value={formData.consignee}
+              onValueChange={(value) => handleInputChange('consignee', value)}
+              placeholder="Select or enter consignee"
+            />
+          </div>
+
+          {/* Consignee Location - Searchable */}
           <div className="space-y-2">
             <Label htmlFor="consigneeLocation">Consignee Location</Label>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                id="consigneeLocation"
-                value={formData.consigneeLocation}
-                onChange={(e) => handleInputChange('consigneeLocation', e.target.value)}
-                placeholder="Delivery City"
-                className="pl-10"
-              />
-            </div>
+            <SearchableSelect
+              options={resources.consigneeLocations}
+              value={formData.consigneeLocation}
+              onValueChange={(value) => handleInputChange('consigneeLocation', value)}
+              placeholder="Select or enter location"
+            />
           </div>
 
           {/* Weight */}
@@ -264,52 +259,48 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
             <p className="text-xs text-gray-500">Formula: (Weight/1000) × Rate + Delivery Charge</p>
           </div>
 
-          {/* Consignor Location */}
+          {/* Consignor Location - Searchable */}
           <div className="space-y-2">
             <Label htmlFor="consignorLocation">Consignor Location</Label>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                id="consignorLocation"
-                value={formData.consignorLocation}
-                onChange={(e) => handleInputChange('consignorLocation', e.target.value)}
-                placeholder="Origin City"
-                className="pl-10"
-              />
-            </div>
+            <SearchableSelect
+              options={resources.consignorLocations}
+              value={formData.consignorLocation}
+              onValueChange={(value) => handleInputChange('consignorLocation', value)}
+              placeholder="Select or enter location"
+            />
           </div>
 
-          {/* Number of Articles */}
+          {/* Number of Articles - Changed to text field */}
           <div className="space-y-2">
             <Label htmlFor="numberOfArticles">No. of Articles</Label>
             <Input
               id="numberOfArticles"
-              type="number"
+              type="text"
               value={formData.numberOfArticles}
               onChange={(e) => handleInputChange('numberOfArticles', e.target.value)}
-              placeholder="0"
+              placeholder="e.g. 5 boxes, 2 pallets"
             />
           </div>
 
-          {/* Nature of Goods */}
+          {/* Nature of Goods - Searchable */}
           <div className="space-y-2">
             <Label htmlFor="natureOfGoods">Nature of Goods</Label>
-            <Input
-              id="natureOfGoods"
+            <SearchableSelect
+              options={resources.natureOfGoods}
               value={formData.natureOfGoods}
-              onChange={(e) => handleInputChange('natureOfGoods', e.target.value)}
-              placeholder="General Cargo"
+              onValueChange={(value) => handleInputChange('natureOfGoods', value)}
+              placeholder="Select or enter goods type"
             />
           </div>
 
-          {/* Consignor */}
+          {/* Consignor - Searchable */}
           <div className="space-y-2 md:col-span-2 lg:col-span-1">
             <Label htmlFor="consignor">Consignor</Label>
-            <Input
-              id="consignor"
+            <SearchableSelect
+              options={resources.consignors}
               value={formData.consignor}
-              onChange={(e) => handleInputChange('consignor', e.target.value)}
-              placeholder="Sender Name"
+              onValueChange={(value) => handleInputChange('consignor', value)}
+              placeholder="Select or enter consignor"
             />
           </div>
 

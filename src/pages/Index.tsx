@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, Plus, List, Truck } from 'lucide-react';
+import { BarChart3, Plus, List, Settings } from 'lucide-react';
 import Dashboard from '@/components/Dashboard';
 import ShipmentForm from '@/components/ShipmentForm';
 import ShipmentList from '@/components/ShipmentList';
+import ResourceManagement from '@/components/ResourceManagement';
 import { useShipments } from '@/hooks/useShipments';
 
 const Index = () => {
@@ -26,7 +27,7 @@ const Index = () => {
 
         {/* Main Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-fit lg:grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4 lg:w-fit lg:grid-cols-4">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Dashboard
@@ -38,6 +39,10 @@ const Index = () => {
             <TabsTrigger value="shipments" className="flex items-center gap-2">
               <List className="h-4 w-4" />
               All Shipments
+            </TabsTrigger>
+            <TabsTrigger value="resources" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Resources
             </TabsTrigger>
           </TabsList>
 
@@ -54,6 +59,11 @@ const Index = () => {
           {/* Shipments List Tab */}
           <TabsContent value="shipments" className="space-y-6">
             <ShipmentList shipments={shipments} />
+          </TabsContent>
+
+          {/* Resources Management Tab */}
+          <TabsContent value="resources" className="space-y-6">
+            <ResourceManagement />
           </TabsContent>
         </Tabs>
       </div>
