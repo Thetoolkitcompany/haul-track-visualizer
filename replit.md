@@ -16,6 +16,7 @@ A comprehensive logistics management system with React frontend and Express back
 - ✓ Application running successfully on port 5000
 - ✓ PostgreSQL database integrated with Drizzle ORM (June 25, 2025)
 - ✓ Added comprehensive shipment data table with search, export, and CRUD operations
+- ✓ Fixed API validation issues and confirmed database operations working (June 25, 2025)
 
 ## Current Features
 - Dashboard with analytics
