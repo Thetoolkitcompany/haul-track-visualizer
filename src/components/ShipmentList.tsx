@@ -26,7 +26,7 @@ const ShipmentList: React.FC<ShipmentListProps> = ({ shipments }) => {
     natureOfGoods: ''
   });
 
-  // Extract unique values for dropdown options
+  // Extract unique values for dropdown options, filtering out empty/null values
   const dropdownOptions = useMemo(() => {
     const consignors = [...new Set(shipments.map(s => s.consignor).filter(Boolean))];
     const consignees = [...new Set(shipments.map(s => s.consignee).filter(Boolean))];
@@ -141,72 +141,72 @@ const ShipmentList: React.FC<ShipmentListProps> = ({ shipments }) => {
 
           {/* Filter Dropdowns */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-            <Select value={filters.consignor} onValueChange={(value) => setFilters(prev => ({ ...prev, consignor: value }))}>
+            <Select value={filters.consignor} onValueChange={(value) => setFilters(prev => ({ ...prev, consignor: value === 'all' ? '' : value }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Consignor" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Consignors</SelectItem>
+                <SelectItem value="all">All Consignors</SelectItem>
                 {dropdownOptions.consignors.map(consignor => (
                   <SelectItem key={consignor} value={consignor}>{consignor}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            <Select value={filters.consignee} onValueChange={(value) => setFilters(prev => ({ ...prev, consignee: value }))}>
+            <Select value={filters.consignee} onValueChange={(value) => setFilters(prev => ({ ...prev, consignee: value === 'all' ? '' : value }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Consignee" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Consignees</SelectItem>
+                <SelectItem value="all">All Consignees</SelectItem>
                 {dropdownOptions.consignees.map(consignee => (
                   <SelectItem key={consignee} value={consignee}>{consignee}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            <Select value={filters.consignorLocation} onValueChange={(value) => setFilters(prev => ({ ...prev, consignorLocation: value }))}>
+            <Select value={filters.consignorLocation} onValueChange={(value) => setFilters(prev => ({ ...prev, consignorLocation: value === 'all' ? '' : value }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Origin" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Origins</SelectItem>
+                <SelectItem value="all">All Origins</SelectItem>
                 {dropdownOptions.consignorLocations.map(location => (
                   <SelectItem key={location} value={location}>{location}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            <Select value={filters.consigneeLocation} onValueChange={(value) => setFilters(prev => ({ ...prev, consigneeLocation: value }))}>
+            <Select value={filters.consigneeLocation} onValueChange={(value) => setFilters(prev => ({ ...prev, consigneeLocation: value === 'all' ? '' : value }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Destination" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Destinations</SelectItem>
+                <SelectItem value="all">All Destinations</SelectItem>
                 {dropdownOptions.consigneeLocations.map(location => (
                   <SelectItem key={location} value={location}>{location}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            <Select value={filters.truckNumber} onValueChange={(value) => setFilters(prev => ({ ...prev, truckNumber: value }))}>
+            <Select value={filters.truckNumber} onValueChange={(value) => setFilters(prev => ({ ...prev, truckNumber: value === 'all' ? '' : value }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Truck" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Trucks</SelectItem>
+                <SelectItem value="all">All Trucks</SelectItem>
                 {dropdownOptions.truckNumbers.map(truck => (
                   <SelectItem key={truck} value={truck}>{truck}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            <Select value={filters.natureOfGoods} onValueChange={(value) => setFilters(prev => ({ ...prev, natureOfGoods: value }))}>
+            <Select value={filters.natureOfGoods} onValueChange={(value) => setFilters(prev => ({ ...prev, natureOfGoods: value === 'all' ? '' : value }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Goods Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value="all">All Types</SelectItem>
                 {dropdownOptions.natureOfGoods.map(goods => (
                   <SelectItem key={goods} value={goods}>{goods}</SelectItem>
                 ))}
