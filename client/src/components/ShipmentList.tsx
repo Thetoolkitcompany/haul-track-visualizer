@@ -5,7 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Eye, Truck, Package, Calendar, MapPin, Download } from 'lucide-react';
+import { Search, Eye, Truck, Package, Calendar, MapPin, Download, Trash2 } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import { queryClient, apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 import type { Shipment } from '@shared/schema';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
@@ -24,6 +27,25 @@ const ShipmentList: React.FC<ShipmentListProps> = ({ shipments }) => {
     consigneeLocation: '',
     truckNumber: '',
     natureOfGoods: ''
+  });
+  const { toast } = useToast();
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => apiRequest(`/api/shipments/${id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/shipments'] });
+      toast({
+        title: 'Shipment deleted',
+        description: 'The shipment has been successfully deleted.',
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete shipment. Please try again.',
+        variant: 'destructive',
+      });
+    },
   });
 
   // Extract unique values for dropdown options, filtering out empty/null values
@@ -269,15 +291,25 @@ const ShipmentList: React.FC<ShipmentListProps> = ({ shipments }) => {
                 </div>
               </div>
 
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => setSelectedShipment(shipment)}
-              >
-                <Eye className="h-3 w-3 mr-1" />
-                View Details
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => setSelectedShipment(shipment)}
+                >
+                  <Eye className="h-3 w-3 mr-1" />
+                  View
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => deleteMutation.mutate(shipment.id)}
+                  disabled={deleteMutation.isPending}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}

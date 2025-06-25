@@ -65,14 +65,33 @@ const ShipmentDataTable = () => {
   );
 
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(shipments);
+    const exportData = filteredShipments.map(shipment => ({
+      'Date': format(new Date(shipment.date), 'PPP'),
+      'Consignment Number': shipment.consignmentNumber,
+      'Truck Number': shipment.truckNumber,
+      'Consignee': shipment.consignee,
+      'Consignee Location': shipment.consigneeLocation,
+      'Weight (kg)': shipment.weight,
+      'Rate ($)': shipment.rate,
+      'Delivery Charge ($)': shipment.deliveryCharge,
+      'Freight ($)': shipment.freight,
+      'Consignor Location': shipment.consignorLocation,
+      'No. of Articles': shipment.numberOfArticles,
+      'Nature of Goods': shipment.natureOfGoods,
+      'Consignor': shipment.consignor,
+      'Notes': shipment.notes || ''
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Shipments');
-    XLSX.writeFile(workbook, `shipments_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+    
+    const fileName = `shipments_${format(new Date(), 'yyyy-MM-dd_HH-mm-ss')}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
     
     toast({
       title: 'Export successful',
-      description: 'Shipments data has been exported to Excel.',
+      description: `Downloaded ${filteredShipments.length} shipments to ${fileName}`,
     });
   };
 
@@ -150,18 +169,24 @@ const ShipmentDataTable = () => {
                 <TableHead>Date</TableHead>
                 <TableHead>Consignment #</TableHead>
                 <TableHead>Truck #</TableHead>
-                <TableHead>Consignor</TableHead>
                 <TableHead>Consignee</TableHead>
+                <TableHead>Consignee Location</TableHead>
                 <TableHead>Weight (kg)</TableHead>
-                <TableHead>Freight (₹)</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Rate ($)</TableHead>
+                <TableHead>Delivery Charge ($)</TableHead>
+                <TableHead>Freight ($)</TableHead>
+                <TableHead>Consignor Location</TableHead>
+                <TableHead>No. of Articles</TableHead>
+                <TableHead>Nature of Goods</TableHead>
+                <TableHead>Consignor</TableHead>
+                <TableHead>Notes</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredShipments.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={15} className="text-center py-8 text-gray-500">
                     {searchTerm ? 'No shipments match your search.' : 'No shipments found.'}
                   </TableCell>
                 </TableRow>
@@ -175,13 +200,17 @@ const ShipmentDataTable = () => {
                       {shipment.consignmentNumber}
                     </TableCell>
                     <TableCell>{shipment.truckNumber}</TableCell>
-                    <TableCell>{shipment.consignor}</TableCell>
                     <TableCell>{shipment.consignee}</TableCell>
+                    <TableCell>{shipment.consigneeLocation}</TableCell>
                     <TableCell>{Number(shipment.weight).toFixed(2)}</TableCell>
-                    <TableCell>₹{Number(shipment.freight).toFixed(2)}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">Active</Badge>
-                    </TableCell>
+                    <TableCell>${shipment.rate}</TableCell>
+                    <TableCell>${shipment.deliveryCharge}</TableCell>
+                    <TableCell>${Number(shipment.freight).toFixed(2)}</TableCell>
+                    <TableCell>{shipment.consignorLocation}</TableCell>
+                    <TableCell>{shipment.numberOfArticles}</TableCell>
+                    <TableCell>{shipment.natureOfGoods}</TableCell>
+                    <TableCell>{shipment.consignor}</TableCell>
+                    <TableCell>{shipment.notes || '-'}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Dialog>
@@ -272,9 +301,9 @@ const ShipmentDataTable = () => {
                           </DialogContent>
                         </Dialog>
                         <Button
-                          variant="ghost"
+                          variant="destructive"
                           size="sm"
-                          onClick={() => handleDelete(shipment.id)}
+                          onClick={() => deleteMutation.mutate(shipment.id)}
                           disabled={deleteMutation.isPending}
                         >
                           <Trash2 className="h-4 w-4" />

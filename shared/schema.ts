@@ -16,7 +16,7 @@ export const shipments = pgTable("shipments", {
   consignee: text("consignee").notNull(),
   consigneeLocation: text("consignee_location").notNull(),
   weight: numeric("weight", { precision: 10, scale: 2 }).notNull(),
-  rate: numeric("rate", { precision: 10, scale: 2 }).notNull(),
+  rate: text("rate").notNull(), // Can be numeric value or "Fix"
   deliveryCharge: numeric("delivery_charge", { precision: 10, scale: 2 }).notNull(),
   freight: numeric("freight", { precision: 10, scale: 2 }).notNull(),
   consignorLocation: text("consignor_location").notNull(),

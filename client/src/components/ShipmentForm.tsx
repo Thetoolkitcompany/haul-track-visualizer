@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CalendarIcon, Truck, Package, MapPin } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -22,6 +23,7 @@ interface ShipmentFormData {
   consigneeLocation: string;
   weight: string;
   rate: string;
+  rateType: 'calculated' | 'fixed';
   deliveryCharge: string;
   freight: number;
   consignorLocation: string;
@@ -46,6 +48,7 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
     consigneeLocation: '',
     weight: '',
     rate: '',
+    rateType: 'calculated',
     deliveryCharge: '',
     freight: 0,
     consignorLocation: '',
@@ -55,15 +58,22 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
     notes: '',
   });
 
-  // Calculate freight automatically when weight, rate, or delivery charge changes
+  // Auto-calculate freight based on weight, rate, and delivery charge (only when rate is calculated)
   useEffect(() => {
-    const weight = parseFloat(formData.weight) || 0;
-    const rate = parseFloat(formData.rate) || 0;
-    const deliveryCharge = parseFloat(formData.deliveryCharge) || 0;
-    
-    const calculatedFreight = (weight / 1000) * rate + deliveryCharge;
-    setFormData(prev => ({ ...prev, freight: calculatedFreight }));
-  }, [formData.weight, formData.rate, formData.deliveryCharge]);
+    if (formData.rateType === 'calculated') {
+      const weight = parseFloat(formData.weight) || 0;
+      const rate = parseFloat(formData.rate) || 0;
+      const deliveryCharge = parseFloat(formData.deliveryCharge) || 0;
+      
+      if (weight > 0 && rate > 0) {
+        const calculatedFreight = (weight * rate) - deliveryCharge;
+        setFormData(prev => ({
+          ...prev,
+          freight: Math.max(0, calculatedFreight) // Ensure freight is not negative
+        }));
+      }
+    }
+  }, [formData.weight, formData.rate, formData.deliveryCharge, formData.rateType]);
 
   const handleInputChange = (field: keyof ShipmentFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -88,7 +98,7 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
       consignee: formData.consignee,
       consigneeLocation: formData.consigneeLocation,
       weight: parseFloat(formData.weight) || 0,
-      rate: parseFloat(formData.rate) || 0,
+      rate: formData.rateType === 'fixed' ? 'Fix' : (parseFloat(formData.rate) || 0),
       deliveryCharge: parseFloat(formData.deliveryCharge) || 0,
       freight: formData.freight,
       consignorLocation: formData.consignorLocation,
@@ -109,6 +119,7 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
       consigneeLocation: '',
       weight: '',
       rate: '',
+      rateType: 'calculated',
       deliveryCharge: '',
       freight: 0,
       consignorLocation: '',
@@ -219,17 +230,51 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
             />
           </div>
 
-          {/* Rate */}
+          {/* Rate Type and Rate */}
+          <div className="space-y-3">
+            <Label>Rate Type</Label>
+            <RadioGroup
+              value={formData.rateType}
+              onValueChange={(value: 'calculated' | 'fixed') => {
+                setFormData({
+                  ...formData, 
+                  rateType: value,
+                  rate: value === 'fixed' ? 'Fix' : ''
+                });
+              }}
+              className="flex space-x-6"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="calculated" id="calculated" />
+                <Label htmlFor="calculated">Calculated</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="fixed" id="fixed" />
+                <Label htmlFor="fixed">Fix</Label>
+              </div>
+            </RadioGroup>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="rate">Rate ($)</Label>
-            <Input
-              id="rate"
-              type="number"
-              step="0.01"
-              value={formData.rate}
-              onChange={(e) => handleInputChange('rate', e.target.value)}
-              placeholder="0.00"
-            />
+            <Label htmlFor="rate">Rate per kg ($)</Label>
+            {formData.rateType === 'fixed' ? (
+              <Input
+                id="rate"
+                type="text"
+                value="Fix"
+                disabled
+                className="bg-gray-100"
+              />
+            ) : (
+              <Input
+                id="rate"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={formData.rate}
+                onChange={(e) => handleInputChange('rate', e.target.value)}
+              />
+            )}
           </div>
 
           {/* Delivery Charge */}
@@ -245,18 +290,29 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
             />
           </div>
 
-          {/* Freight - Auto calculated */}
+          {/* Freight */}
           <div className="space-y-2">
-            <Label htmlFor="freight">Freight ($) - Auto Calculated</Label>
-            <Input
-              id="freight"
-              type="number"
-              step="0.01"
-              value={formData.freight.toFixed(2)}
-              readOnly
-              className="bg-gray-50 cursor-not-allowed"
-            />
-            <p className="text-xs text-gray-500">Formula: (Weight/1000) × Rate + Delivery Charge</p>
+            <Label htmlFor="freight">Freight ($)</Label>
+            {formData.rateType === 'fixed' ? (
+              <Input
+                id="freight"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={formData.freight}
+                onChange={(e) => setFormData({...formData, freight: parseFloat(e.target.value) || 0})}
+              />
+            ) : (
+              <Input
+                id="freight"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={formData.freight.toFixed(2)}
+                disabled
+                className="bg-gray-100"
+              />
+            )}
           </div>
 
           {/* Consignor Location - Searchable */}
