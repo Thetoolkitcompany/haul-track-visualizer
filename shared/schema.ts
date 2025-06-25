@@ -33,6 +33,8 @@ export const insertUserSchema = createInsertSchema(users).pick({
 
 export const insertShipmentSchema = createInsertSchema(shipments).omit({
   id: true,
+}).extend({
+  date: z.string().or(z.date()).transform((val) => new Date(val)),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

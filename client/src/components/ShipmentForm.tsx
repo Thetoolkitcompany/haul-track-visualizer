@@ -82,7 +82,7 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({ onSubmit }) => {
     }
 
     const shipmentData = {
-      date: format(formData.date, 'yyyy-MM-dd'),
+      date: formData.date,
       consignmentNumber: formData.consignmentNumber,
       truckNumber: formData.truckNumber,
       consignee: formData.consignee,

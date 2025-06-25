@@ -15,15 +15,15 @@ export const useShipments = () => {
   const addShipmentMutation = useMutation({
     mutationFn: (shipmentData: any) => {
       const insertData: InsertShipment = {
-        date: shipmentData.date || new Date(),
+        date: new Date(shipmentData.date),
         consignmentNumber: shipmentData.consignmentNumber || '',
         truckNumber: shipmentData.truckNumber || '',
         consignee: shipmentData.consignee || '',
         consigneeLocation: shipmentData.consigneeLocation || '',
-        weight: shipmentData.weight || '0',
-        rate: shipmentData.rate || '0',
-        deliveryCharge: shipmentData.deliveryCharge || '0',
-        freight: shipmentData.freight || '0',
+        weight: shipmentData.weight?.toString() || '0',
+        rate: shipmentData.rate?.toString() || '0',
+        deliveryCharge: shipmentData.deliveryCharge?.toString() || '0',
+        freight: shipmentData.freight?.toString() || '0',
         consignorLocation: shipmentData.consignorLocation || '',
         numberOfArticles: parseInt(shipmentData.numberOfArticles) || 0,
         natureOfGoods: shipmentData.natureOfGoods || '',
