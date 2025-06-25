@@ -1,12 +1,14 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, Eye, Truck, Package, Calendar, MapPin } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Search, Eye, Truck, Package, Calendar, MapPin, Download } from 'lucide-react';
 import { Shipment } from '@/types/shipment';
 import { format } from 'date-fns';
+import * as XLSX from 'xlsx';
 
 interface ShipmentListProps {
   shipments: Shipment[];
@@ -15,25 +17,118 @@ interface ShipmentListProps {
 const ShipmentList: React.FC<ShipmentListProps> = ({ shipments }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
+  const [filters, setFilters] = useState({
+    consignor: '',
+    consignee: '',
+    consignorLocation: '',
+    consigneeLocation: '',
+    truckNumber: '',
+    natureOfGoods: ''
+  });
 
-  const filteredShipments = shipments.filter(shipment =>
-    shipment.consignmentNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    shipment.truckNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    shipment.consignee.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    shipment.consignor.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Extract unique values for dropdown options
+  const dropdownOptions = useMemo(() => {
+    const consignors = [...new Set(shipments.map(s => s.consignor).filter(Boolean))];
+    const consignees = [...new Set(shipments.map(s => s.consignee).filter(Boolean))];
+    const consignorLocations = [...new Set(shipments.map(s => s.consignorLocation).filter(Boolean))];
+    const consigneeLocations = [...new Set(shipments.map(s => s.consigneeLocation).filter(Boolean))];
+    const truckNumbers = [...new Set(shipments.map(s => s.truckNumber).filter(Boolean))];
+    const natureOfGoods = [...new Set(shipments.map(s => s.natureOfGoods).filter(Boolean))];
+
+    return {
+      consignors,
+      consignees,
+      consignorLocations,
+      consigneeLocations,
+      truckNumbers,
+      natureOfGoods
+    };
+  }, [shipments]);
+
+  const filteredShipments = shipments.filter(shipment => {
+    const matchesSearch = searchTerm === '' || 
+      shipment.consignmentNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      shipment.truckNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      shipment.consignee.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      shipment.consignor.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesFilters = 
+      (filters.consignor === '' || shipment.consignor === filters.consignor) &&
+      (filters.consignee === '' || shipment.consignee === filters.consignee) &&
+      (filters.consignorLocation === '' || shipment.consignorLocation === filters.consignorLocation) &&
+      (filters.consigneeLocation === '' || shipment.consigneeLocation === filters.consigneeLocation) &&
+      (filters.truckNumber === '' || shipment.truckNumber === filters.truckNumber) &&
+      (filters.natureOfGoods === '' || shipment.natureOfGoods === filters.natureOfGoods);
+
+    return matchesSearch && matchesFilters;
+  });
+
+  const downloadExcel = () => {
+    if (filteredShipments.length === 0) {
+      alert('No data to export');
+      return;
+    }
+
+    const exportData = filteredShipments.map(shipment => ({
+      'Date': format(new Date(shipment.date), 'yyyy-MM-dd'),
+      'Consignment Number': shipment.consignmentNumber,
+      'Truck Number': shipment.truckNumber,
+      'Consignee': shipment.consignee,
+      'Consignee Location': shipment.consigneeLocation,
+      'Weight (kg)': shipment.weight,
+      'Rate ($)': shipment.rate,
+      'Delivery Charge ($)': shipment.deliveryCharge,
+      'Freight ($)': shipment.freight,
+      'Consignor Location': shipment.consignorLocation,
+      'No. of Articles': shipment.numberOfArticles,
+      'Nature of Goods': shipment.natureOfGoods,
+      'Consignor': shipment.consignor,
+      'Notes': shipment.notes || ''
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Shipments');
+    
+    const fileName = `shipments_${format(new Date(), 'yyyy-MM-dd_HH-mm-ss')}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      consignor: '',
+      consignee: '',
+      consignorLocation: '',
+      consigneeLocation: '',
+      truckNumber: '',
+      natureOfGoods: ''
+    });
+    setSearchTerm('');
+  };
 
   return (
     <div className="space-y-6">
-      {/* Search */}
+      {/* Search and Filters */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
-            Shipment Records ({shipments.length})
-          </CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              Shipment Records ({filteredShipments.length} of {shipments.length})
+            </CardTitle>
+            <div className="flex gap-2">
+              <Button onClick={clearFilters} variant="outline" size="sm">
+                Clear Filters
+              </Button>
+              <Button onClick={downloadExcel} className="flex items-center gap-2">
+                <Download className="h-4 w-4" />
+                Export Excel
+              </Button>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {/* Search Bar */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
@@ -42,6 +137,81 @@ const ShipmentList: React.FC<ShipmentListProps> = ({ shipments }) => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
             />
+          </div>
+
+          {/* Filter Dropdowns */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+            <Select value={filters.consignor} onValueChange={(value) => setFilters(prev => ({ ...prev, consignor: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Consignor" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Consignors</SelectItem>
+                {dropdownOptions.consignors.map(consignor => (
+                  <SelectItem key={consignor} value={consignor}>{consignor}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={filters.consignee} onValueChange={(value) => setFilters(prev => ({ ...prev, consignee: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Consignee" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Consignees</SelectItem>
+                {dropdownOptions.consignees.map(consignee => (
+                  <SelectItem key={consignee} value={consignee}>{consignee}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={filters.consignorLocation} onValueChange={(value) => setFilters(prev => ({ ...prev, consignorLocation: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Origin" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Origins</SelectItem>
+                {dropdownOptions.consignorLocations.map(location => (
+                  <SelectItem key={location} value={location}>{location}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={filters.consigneeLocation} onValueChange={(value) => setFilters(prev => ({ ...prev, consigneeLocation: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Destination" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Destinations</SelectItem>
+                {dropdownOptions.consigneeLocations.map(location => (
+                  <SelectItem key={location} value={location}>{location}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={filters.truckNumber} onValueChange={(value) => setFilters(prev => ({ ...prev, truckNumber: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Truck" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Trucks</SelectItem>
+                {dropdownOptions.truckNumbers.map(truck => (
+                  <SelectItem key={truck} value={truck}>{truck}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={filters.natureOfGoods} onValueChange={(value) => setFilters(prev => ({ ...prev, natureOfGoods: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Goods Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Types</SelectItem>
+                {dropdownOptions.natureOfGoods.map(goods => (
+                  <SelectItem key={goods} value={goods}>{goods}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -119,7 +289,7 @@ const ShipmentList: React.FC<ShipmentListProps> = ({ shipments }) => {
             <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">No shipments found</h3>
             <p className="text-muted-foreground">
-              {searchTerm ? 'Try adjusting your search terms' : 'Add your first shipment to get started'}
+              {searchTerm || Object.values(filters).some(f => f !== '') ? 'Try adjusting your search terms or filters' : 'Add your first shipment to get started'}
             </p>
           </CardContent>
         </Card>
