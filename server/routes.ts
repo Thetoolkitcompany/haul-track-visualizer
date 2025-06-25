@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertShipmentSchema } from "@shared/schema";
+import { googleSheetsService } from "./googleSheets";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
