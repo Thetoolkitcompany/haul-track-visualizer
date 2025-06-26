@@ -16,11 +16,11 @@ export const shipments = pgTable("shipments", {
   consignee: text("consignee").notNull(),
   consigneeLocation: text("consignee_location").notNull(),
   weight: numeric("weight", { precision: 10, scale: 2 }).notNull(),
-  rate: text("rate").notNull(), // Can be numeric value or "Fix"
+  rate: numeric("rate", { precision: 10, scale: 2 }).notNull(),
   deliveryCharge: numeric("delivery_charge", { precision: 10, scale: 2 }).notNull(),
   freight: numeric("freight", { precision: 10, scale: 2 }).notNull(),
   consignorLocation: text("consignor_location").notNull(),
-  numberOfArticles: text("number_of_articles").notNull(),
+  numberOfArticles: integer("number_of_articles").notNull(),
   natureOfGoods: text("nature_of_goods").notNull(),
   consignor: text("consignor").notNull(),
   notes: text("notes"),
@@ -35,7 +35,11 @@ export const insertShipmentSchema = createInsertSchema(shipments).omit({
   id: true,
 }).extend({
   date: z.string().or(z.date()).transform((val) => new Date(val)),
-  numberOfArticles: z.string().or(z.number()).transform((val) => val.toString()),
+  numberOfArticles: z.string().or(z.number()).transform((val) => parseInt(val.toString())),
+  rate: z.string().or(z.number()).transform((val) => parseFloat(val.toString())),
+  weight: z.string().or(z.number()).transform((val) => parseFloat(val.toString())),
+  deliveryCharge: z.string().or(z.number()).transform((val) => parseFloat(val.toString())),
+  freight: z.string().or(z.number()).transform((val) => parseFloat(val.toString())),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

@@ -21,6 +21,9 @@ A comprehensive logistics management system with React frontend and Express back
 - ✓ Added rate radio button with conditional freight calculation
 - ✓ Fixed freight calculation formula: (Weight/1000) × Rate + Delivery Charge
 - ✓ Restructured form layout and set numberOfArticles to fixed "Loose" value
+- ✓ Enhanced dashboard with advanced date filtering system (June 26, 2025)
+- ✓ Supabase database integration completed with DATABASE_URL secret (June 26, 2025)
+- ✓ Schema synchronized and data operations verified working
 
 ## Current Features
 - Dashboard with analytics
