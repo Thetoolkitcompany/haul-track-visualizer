@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -50,12 +49,12 @@ const ShipmentList: React.FC<ShipmentListProps> = ({ shipments }) => {
 
   // Extract unique values for dropdown options, filtering out empty/null values
   const dropdownOptions = useMemo(() => {
-    const consignors = [...new Set(shipments.map(s => s.consignor).filter(Boolean))];
-    const consignees = [...new Set(shipments.map(s => s.consignee).filter(Boolean))];
-    const consignorLocations = [...new Set(shipments.map(s => s.consignorLocation).filter(Boolean))];
-    const consigneeLocations = [...new Set(shipments.map(s => s.consigneeLocation).filter(Boolean))];
-    const truckNumbers = [...new Set(shipments.map(s => s.truckNumber).filter(Boolean))];
-    const natureOfGoods = [...new Set(shipments.map(s => s.natureOfGoods).filter(Boolean))];
+    const consignors = Array.from(new Set(shipments.map(s => s.consignor).filter(Boolean)));
+    const consignees = Array.from(new Set(shipments.map(s => s.consignee).filter(Boolean)));
+    const consignorLocations = Array.from(new Set(shipments.map(s => s.consignorLocation).filter(Boolean)));
+    const consigneeLocations = Array.from(new Set(shipments.map(s => s.consigneeLocation).filter(Boolean)));
+    const truckNumbers = Array.from(new Set(shipments.map(s => s.truckNumber).filter(Boolean)));
+    const natureOfGoods = Array.from(new Set(shipments.map(s => s.natureOfGoods).filter(Boolean)));
 
     return {
       consignors,

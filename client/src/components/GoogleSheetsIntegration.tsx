@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +12,7 @@ import {
   FileSpreadsheet, 
   Download, 
   Upload, 
-  Sync, 
+  RotateCw, 
   CheckCircle, 
   AlertCircle,
   ExternalLink 
@@ -145,7 +146,7 @@ const GoogleSheetsIntegration = ({ shipmentsCount }: GoogleSheetsIntegrationProp
                     variant="default"
                   >
                     {syncToSheetsMutation.isPending ? (
-                      <Sync className="h-4 w-4 mr-2 animate-spin" />
+                      <RotateCw className="h-4 w-4 mr-2 animate-spin" />
                     ) : (
                       <Upload className="h-4 w-4 mr-2" />
                     )}
@@ -172,7 +173,7 @@ const GoogleSheetsIntegration = ({ shipmentsCount }: GoogleSheetsIntegrationProp
                     variant="outline"
                   >
                     {importFromSheetsMutation.isPending ? (
-                      <Sync className="h-4 w-4 mr-2 animate-spin" />
+                      <RotateCw className="h-4 w-4 mr-2 animate-spin" />
                     ) : (
                       <Download className="h-4 w-4 mr-2" />
                     )}

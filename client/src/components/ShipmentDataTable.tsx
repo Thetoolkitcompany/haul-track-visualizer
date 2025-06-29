@@ -65,7 +65,7 @@ const ShipmentDataTable = () => {
   );
 
   const exportToExcel = () => {
-    const exportData = filteredShipments.map(shipment => ({
+    const exportData = filteredShipments.map((shipment: Shipment) => ({
       'Date': format(new Date(shipment.date), 'PPP'),
       'Consignment Number': shipment.consignmentNumber,
       'Truck Number': shipment.truckNumber,

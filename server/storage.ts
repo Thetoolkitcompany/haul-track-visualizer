@@ -1,3 +1,4 @@
+
 import { users, shipments, type User, type InsertUser, type Shipment, type InsertShipment } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -44,17 +45,41 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createShipment(insertShipment: InsertShipment): Promise<Shipment> {
+    // Convert numeric values to strings as required by the database schema
+    const dbShipment = {
+      ...insertShipment,
+      weight: insertShipment.weight.toString(),
+      rate: insertShipment.rate.toString(),
+      deliveryCharge: insertShipment.deliveryCharge.toString(),
+      freight: insertShipment.freight.toString(),
+    };
+    
     const [shipment] = await db
       .insert(shipments)
-      .values(insertShipment)
+      .values(dbShipment)
       .returning();
     return shipment;
   }
 
   async updateShipment(id: number, updateData: Partial<InsertShipment>): Promise<Shipment | undefined> {
+    // Convert numeric values to strings as required by the database schema
+    const dbUpdateData: any = { ...updateData };
+    if (dbUpdateData.weight !== undefined) {
+      dbUpdateData.weight = dbUpdateData.weight.toString();
+    }
+    if (dbUpdateData.rate !== undefined) {
+      dbUpdateData.rate = dbUpdateData.rate.toString();
+    }
+    if (dbUpdateData.deliveryCharge !== undefined) {
+      dbUpdateData.deliveryCharge = dbUpdateData.deliveryCharge.toString();
+    }
+    if (dbUpdateData.freight !== undefined) {
+      dbUpdateData.freight = dbUpdateData.freight.toString();
+    }
+
     const [shipment] = await db
       .update(shipments)
-      .set(updateData)
+      .set(dbUpdateData)
       .where(eq(shipments.id, id))
       .returning();
     return shipment || undefined;
